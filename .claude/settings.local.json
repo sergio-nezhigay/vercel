@@ -24,7 +24,10 @@
       "Bash(vercel --help:*)",
       "Bash(vercel env pull:*)",
       "Bash(cat:*)",
-      "Bash(npm run init-db:*)"
+      "Bash(npm run init-db:*)",
+      "WebFetch(domain:docs.google.com)",
+      "WebFetch(domain:wiki.checkbox.ua)",
+      "Bash(npm run verify-step1:*)"
     ],
     "deny": [],
     "ask": []
