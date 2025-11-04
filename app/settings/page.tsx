@@ -15,7 +15,7 @@ interface CompanyFormData {
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { companies, loadCompanies } = useCompany();
+  const { companies, loadCompanies, error: companiesError } = useCompany();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<CompanyFormData>({
@@ -65,7 +65,7 @@ export default function SettingsPage() {
     setSuccess('');
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token');
       if (!token) {
         router.push('/login');
         return;
@@ -112,7 +112,7 @@ export default function SettingsPage() {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token');
       if (!token) {
         router.push('/login');
         return;
@@ -159,6 +159,18 @@ export default function SettingsPage() {
           Назад
         </button>
       </div>
+
+      {companiesError && (
+        <div style={{
+          padding: '15px',
+          background: '#fee',
+          color: '#c33',
+          borderRadius: '5px',
+          marginBottom: '20px',
+        }}>
+          <strong>Помилка завантаження компаній:</strong> {companiesError}
+        </div>
+      )}
 
       {error && (
         <div style={{

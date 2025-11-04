@@ -29,7 +29,8 @@
       "WebFetch(domain:wiki.checkbox.ua)",
       "Bash(npm run verify-step1:*)",
       "Bash(.env.local)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(npm run cleanup-companies:*)"
     ],
     "deny": [],
     "ask": []

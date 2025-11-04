@@ -16,7 +16,7 @@ interface Transaction {
 
 export default function Home() {
   const router = useRouter();
-  const { selectedCompany, companies, setSelectedCompany, isLoading: companiesLoading } = useCompany();
+  const { selectedCompany, companies, setSelectedCompany, isLoading: companiesLoading, error: companiesError } = useCompany();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [balance, setBalance] = useState<string>('0.00');
   const [loading, setLoading] = useState(true);
@@ -127,7 +127,7 @@ export default function Home() {
     setFetchStatus('');
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token');
       if (!token) {
         router.push('/login');
         return;
@@ -177,6 +177,18 @@ export default function Home() {
     <main className="container">
       {/* Company Selector Header */}
       <div className="content" style={{ marginBottom: '20px', background: 'rgba(255,255,255,0.95)', borderRadius: '10px', padding: '20px' }}>
+        {companiesError && (
+          <div style={{
+            padding: '15px',
+            background: '#fee',
+            color: '#c33',
+            borderRadius: '5px',
+            marginBottom: '15px',
+            fontSize: '14px',
+          }}>
+            <strong>Помилка завантаження компаній:</strong> {companiesError}
+          </div>
+        )}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
           <div style={{ flex: 1, minWidth: '250px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>

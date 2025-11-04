@@ -25,30 +25,35 @@ export async function GET() {
         pb_api_token_encrypted,
         checkbox_license_key_encrypted,
         checkbox_cashier_pin_encrypted,
-        created_at,
-        updated_at
+        created_at
       FROM companies
       ORDER BY name ASC
     `;
 
     // Decrypt sensitive fields before sending to frontend
-    const companies = result.rows.map((company) => ({
-      id: company.id,
-      name: company.name,
-      tax_id: company.tax_id,
-      pb_merchant_id: company.pb_merchant_id,
-      pb_api_token: company.pb_api_token_encrypted
-        ? decrypt(company.pb_api_token_encrypted)
-        : null,
-      checkbox_license_key: company.checkbox_license_key_encrypted
-        ? decrypt(company.checkbox_license_key_encrypted)
-        : null,
-      checkbox_cashier_pin: company.checkbox_cashier_pin_encrypted
-        ? decrypt(company.checkbox_cashier_pin_encrypted)
-        : null,
-      created_at: company.created_at,
-      updated_at: company.updated_at,
-    }));
+    const companies = result.rows.map((company) => {
+      // Safe decrypt helper
+      const safeDecrypt = (encrypted: string | null): string | null => {
+        if (!encrypted) return null;
+        try {
+          return decrypt(encrypted);
+        } catch (error) {
+          console.error(`Decryption failed for company ${company.id}:`, error);
+          return null;
+        }
+      };
+
+      return {
+        id: company.id,
+        name: company.name,
+        tax_id: company.tax_id,
+        pb_merchant_id: company.pb_merchant_id,
+        pb_api_token: safeDecrypt(company.pb_api_token_encrypted),
+        checkbox_license_key: safeDecrypt(company.checkbox_license_key_encrypted),
+        checkbox_cashier_pin: safeDecrypt(company.checkbox_cashier_pin_encrypted),
+        created_at: company.created_at,
+      };
+    });
 
     return NextResponse.json({ companies });
   } catch (error) {
@@ -102,8 +107,7 @@ export async function POST(request: NextRequest) {
         name,
         tax_id,
         pb_merchant_id,
-        created_at,
-        updated_at
+        created_at
     `;
 
     const company = result.rows[0];

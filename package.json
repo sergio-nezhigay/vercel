@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "init-db": "tsx scripts/init-db.ts",
-    "verify-step1": "tsx scripts/verify-step1.ts"
+    "verify-step1": "tsx scripts/verify-step1.ts",
+    "cleanup-companies": "tsx scripts/cleanup-companies.ts"
   },
   "dependencies": {
     "@vercel/postgres": "^0.10.0",

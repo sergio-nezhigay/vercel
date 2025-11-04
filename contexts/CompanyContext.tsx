@@ -11,7 +11,6 @@ export interface Company {
   checkbox_license_key: string | null;
   checkbox_cashier_pin: string | null;
   created_at: string;
-  updated_at: string;
 }
 
 interface CompanyContextType {
@@ -20,6 +19,7 @@ interface CompanyContextType {
   setSelectedCompany: (company: Company | null) => void;
   loadCompanies: () => Promise<void>;
   isLoading: boolean;
+  error: string | null;
 }
 
 const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
@@ -28,15 +28,18 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
   const [selectedCompany, setSelectedCompanyState] = useState<Company | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Load companies from API
   const loadCompanies = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('token');
+      setError(null);
+      const token = localStorage.getItem('auth_token');
 
       if (!token) {
-        console.log('No token found, skipping company load');
+        console.log('No auth token found, skipping company load');
+        setError('Немає токена авторизації. Будь ласка, увійдіть знову.');
         return;
       }
 
@@ -49,6 +52,7 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         setCompanies(data.companies || []);
+        setError(null);
 
         // Auto-select first company if none selected
         if (data.companies && data.companies.length > 0 && !selectedCompany) {
@@ -60,9 +64,14 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
           setSelectedCompanyState(companyToSelect || data.companies[0]);
         }
       } else {
-        console.error('Failed to fetch companies:', response.statusText);
+        const errorData = await response.json().catch(() => ({ error: 'Невідома помилка' }));
+        const errorMessage = errorData.error || `Помилка ${response.status}: ${response.statusText}`;
+        setError(errorMessage);
+        console.error('Failed to fetch companies:', errorMessage);
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Помилка з\'єднання з сервером';
+      setError(errorMessage);
       console.error('Error loading companies:', error);
     } finally {
       setIsLoading(false);
@@ -93,6 +102,7 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
         setSelectedCompany,
         loadCompanies,
         isLoading,
+        error,
       }}
     >
       {children}
