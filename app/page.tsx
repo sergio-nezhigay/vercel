@@ -4,12 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCompany } from '@/contexts/CompanyContext';
 import PaymentList from '@/components/PaymentList';
+import Dashboard from '@/components/Dashboard';
+
+type ViewMode = 'dashboard' | 'payments';
 
 export default function Home() {
   const router = useRouter();
   const { selectedCompany, companies, setSelectedCompany, isLoading: companiesLoading, error: companiesError } = useCompany();
   const [fetchingPayments, setFetchingPayments] = useState(false);
   const [fetchStatus, setFetchStatus] = useState<string>('');
+  const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
 
   const handleFetchPayments = async () => {
     if (!selectedCompany) {
@@ -147,22 +151,58 @@ export default function Home() {
 
         {selectedCompany && (
           <div style={{ marginTop: '15px', borderTop: '1px solid #e5e7eb', paddingTop: '15px' }}>
-            <button
-              onClick={handleFetchPayments}
-              disabled={fetchingPayments}
-              style={{
-                padding: '12px 24px',
-                background: fetchingPayments ? '#9ca3af' : '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: fetchingPayments ? 'not-allowed' : 'pointer',
-                fontSize: '16px',
-                fontWeight: 'bold',
-              }}
-            >
-              {fetchingPayments ? '⏳ Завантаження...' : '💳 Отримати платежі з ПриватБанку'}
-            </button>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <button
+                onClick={handleFetchPayments}
+                disabled={fetchingPayments}
+                style={{
+                  padding: '12px 24px',
+                  background: fetchingPayments ? '#9ca3af' : '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: fetchingPayments ? 'not-allowed' : 'pointer',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                }}
+              >
+                {fetchingPayments ? '⏳ Завантаження...' : '💳 Отримати платежі з ПриватБанку'}
+              </button>
+
+              {/* View Mode Toggle */}
+              <div style={{ display: 'flex', gap: '5px', marginLeft: 'auto' }}>
+                <button
+                  onClick={() => setViewMode('dashboard')}
+                  style={{
+                    padding: '10px 20px',
+                    background: viewMode === 'dashboard' ? '#667eea' : '#e5e7eb',
+                    color: viewMode === 'dashboard' ? 'white' : '#666',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: viewMode === 'dashboard' ? 'bold' : 'normal',
+                  }}
+                >
+                  📊 Панель
+                </button>
+                <button
+                  onClick={() => setViewMode('payments')}
+                  style={{
+                    padding: '10px 20px',
+                    background: viewMode === 'payments' ? '#667eea' : '#e5e7eb',
+                    color: viewMode === 'payments' ? 'white' : '#666',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: viewMode === 'payments' ? 'bold' : 'normal',
+                  }}
+                >
+                  📋 Платежі
+                </button>
+              </div>
+            </div>
             {fetchStatus && (
               <div style={{
                 marginTop: '10px',
@@ -179,14 +219,24 @@ export default function Home() {
         )}
       </div>
 
-      {/* Payment List */}
+      {/* Dashboard or Payment List */}
       {selectedCompany ? (
-        <PaymentList companyId={selectedCompany.id} />
+        viewMode === 'dashboard' ? (
+          <Dashboard
+            companyId={selectedCompany.id}
+            onRefresh={() => {
+              // Trigger any additional refresh logic if needed
+              console.log('Dashboard refreshed');
+            }}
+          />
+        ) : (
+          <PaymentList companyId={selectedCompany.id} />
+        )
       ) : (
         <div className="content" style={{ textAlign: 'center', padding: '40px' }}>
           <h2>Система управління платежами та чеками</h2>
           <p style={{ color: '#666', marginTop: '20px' }}>
-            Оберіть компанію зі списку вище, щоб переглянути платежі
+            Оберіть компанію зі списку вище, щоб переглянути дані
           </p>
         </div>
       )}

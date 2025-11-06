@@ -7,6 +7,7 @@ import {
   uahToKopiyky,
   CheckboxCreateReceiptRequest,
 } from '@/lib/checkbox-client';
+import { getProductTitle, getProductCode } from '@/lib/product-title';
 
 // Validation schema for receipt creation
 const createReceiptSchema = z.object({
@@ -86,13 +87,26 @@ export async function POST(request: NextRequest) {
     // Convert amount to kopiyky (Checkbox uses kopiyky for amounts)
     const amountInKopiyky = uahToKopiyky(parseFloat(payment.amount));
 
+    // Prepare company and payment info for product title generation
+    const companyInfo = {
+      id: payment.company_id,
+      name: payment.company_name,
+    };
+
+    const paymentInfo = {
+      id: payment.id,
+      description: payment.description,
+      amount: payment.amount,
+      sender_name: payment.sender_name,
+    };
+
     // Prepare receipt data
     const receiptData: CheckboxCreateReceiptRequest = {
       goods: [
         {
           good: {
-            code: payment.id.toString(),
-            name: payment.description || 'Послуга/Товар',
+            code: getProductCode(companyInfo, paymentInfo),
+            name: getProductTitle(companyInfo, paymentInfo),
             price: amountInKopiyky,
           },
           quantity: 1000, // 1000 = 1 unit (Checkbox uses milliliters/milligrams)
