@@ -34,7 +34,6 @@ export default function LoginPage() {
 
       // Store token in localStorage
       localStorage.setItem('auth_token', data.token);
-      console.log('[Login] Token stored:', data.token.substring(0, 20) + '...');
       localStorage.setItem('user', JSON.stringify(data.user));
 
       console.log('Login successful:', data.user.email);
