@@ -13,7 +13,7 @@ export default function Home() {
   const { selectedCompany, companies, setSelectedCompany, isLoading: companiesLoading, error: companiesError } = useCompany();
   const [fetchingPayments, setFetchingPayments] = useState(false);
   const [fetchStatus, setFetchStatus] = useState<string>('');
-  const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
+  const [viewMode, setViewMode] = useState<ViewMode>('payments');
 
   const handleFetchPayments = async () => {
     if (!selectedCompany) {

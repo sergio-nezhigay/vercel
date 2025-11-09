@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql } from '@vercel/postgres';
 import { z } from 'zod';
-import { verifyPassword, createJWT } from '@/lib/auth';
+import { createJWT } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import { errors, handleApiError } from '@/lib/api-error-handler';
 
@@ -21,41 +20,33 @@ export async function POST(request: NextRequest) {
     // Validate input
     const { email, password } = loginSchema.parse(body);
 
-    // Find user by email
-    logger.dbQuery('SELECT user by email', [email]);
-    const result = await sql`
-      SELECT id, email, password_hash, name
-      FROM users
-      WHERE email = ${email}
-    `;
+    // Check credentials against environment variables
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
 
-    if (result.rows.length === 0) {
-      logger.warn('Login attempt with invalid email', { email });
+    if (!adminEmail || !adminPassword) {
+      logger.error('ADMIN_EMAIL or ADMIN_PASSWORD environment variables not set');
+      throw errors.internalError('Authentication system not configured');
+    }
+
+    // Simple string comparison (no bcrypt needed for env-based auth)
+    if (email !== adminEmail || password !== adminPassword) {
+      logger.warn('Login attempt with invalid credentials', { email });
       throw errors.unauthorized('Invalid email or password');
     }
 
-    const user = result.rows[0];
+    // Create JWT token with a fixed user ID
+    const token = await createJWT(1);
 
-    // Verify password
-    const isValidPassword = await verifyPassword(password, user.password_hash);
-
-    if (!isValidPassword) {
-      logger.warn('Login attempt with invalid password', { email });
-      throw errors.unauthorized('Invalid email or password');
-    }
-
-    // Create JWT token
-    const token = await createJWT(user.id);
-
-    logger.info('User logged in successfully', { userId: user.id, email: user.email });
+    logger.info('Admin logged in successfully', { email });
 
     const response = NextResponse.json({
       success: true,
       token,
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
+        id: 1,
+        email: adminEmail,
+        name: 'Administrator',
       },
     });
 

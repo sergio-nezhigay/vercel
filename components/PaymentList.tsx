@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getTargetLabel } from '@/lib/account-utils';
 
 interface Payment {
   id: number;
@@ -17,6 +18,7 @@ interface Payment {
   payment_date: string;
   status: string;
   receipt_issued: boolean;
+  is_target: boolean;
   receipt_id: number | null;
   created_at: string;
   checkbox_receipt_id: string | null;
@@ -409,7 +411,8 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                     key={payment.id}
                     style={{
                       borderBottom: '1px solid #e5e7eb',
-                      background: payment.receipt_issued ? '#f0fdf4' : 'white',
+                      background: payment.receipt_issued ? '#f0fdf4' : (payment.is_target ? 'white' : '#f5f5f5'),
+                      opacity: payment.is_target ? 1 : 0.6,
                     }}
                   >
                     <td style={{ padding: '12px', fontSize: '14px' }}>
@@ -417,6 +420,11 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                     </td>
                     <td style={{ padding: '12px', fontSize: '14px' }}>
                       <div style={{ fontWeight: '500' }}>{payment.sender_name}</div>
+                      {payment.sender_account && (
+                        <div style={{ fontSize: '12px', color: '#666' }}>
+                          Рахунок: {payment.sender_account}
+                        </div>
+                      )}
                       {payment.sender_tax_id && (
                         <div style={{ fontSize: '12px', color: '#666' }}>
                           ЄДРПОУ: {payment.sender_tax_id}
@@ -447,31 +455,46 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                       {formatAmount(payment.amount, payment.currency)}
                     </td>
                     <td style={{ padding: '12px', textAlign: 'center' }}>
-                      {payment.receipt_issued ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                        {/* Target indicator */}
                         <span style={{
                           display: 'inline-block',
                           padding: '4px 12px',
-                          background: '#d1fae5',
-                          color: '#065f46',
+                          background: payment.is_target ? '#dbeafe' : '#f3f4f6',
+                          color: payment.is_target ? '#1e40af' : '#6b7280',
                           borderRadius: '12px',
-                          fontSize: '12px',
+                          fontSize: '11px',
                           fontWeight: '500',
                         }}>
-                          ✓ Чек видано
+                          {payment.is_target ? '🎯 Потребує чек' : 'ℹ️ Не потребує чека'}
                         </span>
-                      ) : (
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '4px 12px',
-                          background: '#fef3c7',
-                          color: '#92400e',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                        }}>
-                          ⏳ Очікує
-                        </span>
-                      )}
+                        {/* Receipt status */}
+                        {payment.receipt_issued ? (
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '4px 12px',
+                            background: '#d1fae5',
+                            color: '#065f46',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                          }}>
+                            ✓ Чек видано
+                          </span>
+                        ) : (
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '4px 12px',
+                            background: '#fef3c7',
+                            color: '#92400e',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                          }}>
+                            ⏳ Очікує
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td style={{ padding: '12px', textAlign: 'center' }}>
                       {payment.receipt_issued ? (
@@ -496,14 +519,14 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                       ) : (
                         <button
                           onClick={() => handleIssueReceipt(payment.id)}
-                          disabled={issuingReceipt === payment.id}
+                          disabled={issuingReceipt === payment.id || !payment.is_target}
                           style={{
                             padding: '6px 12px',
-                            background: issuingReceipt === payment.id ? '#9ca3af' : '#10b981',
+                            background: issuingReceipt === payment.id ? '#9ca3af' : (payment.is_target ? '#10b981' : '#d1d5db'),
                             color: 'white',
                             border: 'none',
                             borderRadius: '5px',
-                            cursor: issuingReceipt === payment.id ? 'not-allowed' : 'pointer',
+                            cursor: (issuingReceipt === payment.id || !payment.is_target) ? 'not-allowed' : 'pointer',
                             fontSize: '12px',
                             fontWeight: '500',
                             whiteSpace: 'nowrap',

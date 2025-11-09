@@ -22,17 +22,6 @@ async function initDatabase() {
     // CREATE TABLES
     // ============================================
 
-    console.log('\n📋 Creating users table...');
-    await sql`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        name VARCHAR(255),
-        created_at TIMESTAMP DEFAULT NOW()
-      );
-    `;
-    console.log('✓ Users table created');
 
     console.log('\n🏢 Creating companies table...');
     await sql`
@@ -68,6 +57,7 @@ async function initDatabase() {
         status VARCHAR(20) DEFAULT 'pending',
         receipt_issued BOOLEAN DEFAULT false,
         receipt_id INTEGER NULL,
+        is_target BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT NOW()
       );
     `;
@@ -212,8 +202,6 @@ async function initDatabase() {
     console.log('\n📊 Database Summary:');
     console.log('═══════════════════════════════════════');
 
-    const userCount = await sql`SELECT COUNT(*) as count FROM users`;
-    console.log(`Users: ${userCount.rows[0].count}`);
 
     const companyCount = await sql`SELECT COUNT(*) as count FROM companies`;
     console.log(`Companies: ${companyCount.rows[0].count}`);

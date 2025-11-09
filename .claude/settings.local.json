@@ -34,7 +34,9 @@
       "Bash(npm run migrate-payments:*)",
       "Bash(npx tsx:*)",
       "Bash(npm run dev:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(node -e:*)",
+      "Bash(vercel env add:*)"
     ],
     "deny": [],
     "ask": []

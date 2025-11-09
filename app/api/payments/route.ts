@@ -113,6 +113,7 @@ export async function GET(request: NextRequest) {
         p.payment_date,
         p.status,
         p.receipt_issued,
+        p.is_target,
         p.receipt_id,
         p.created_at,
         r.checkbox_receipt_id,

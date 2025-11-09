@@ -6,6 +6,7 @@ import {
   fetchPrivatBankPayments,
   parsePrivatBankTransaction,
 } from '@/lib/privatbank-client';
+import { isTargetAccount } from '@/lib/account-utils';
 
 // Validation schema for fetch request
 const fetchPaymentsSchema = z.object({
@@ -128,7 +129,8 @@ export async function POST(request: NextRequest) {
             payment_date,
             currency,
             document_number,
-            receipt_issued
+            receipt_issued,
+            is_target
           )
           VALUES (
             ${companyId},
@@ -141,7 +143,8 @@ export async function POST(request: NextRequest) {
             ${payment.payment_date},
             ${payment.currency},
             ${payment.document_number},
-            false
+            false,
+            ${isTargetAccount(payment.sender_account)}
           )
         `;
 
