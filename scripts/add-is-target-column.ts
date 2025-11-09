@@ -31,12 +31,13 @@ async function addIsTargetColumn() {
     console.log('✓ Added is_target column to payments table');
 
     // Update existing records based on sender_account pattern
-    // Patterns at positions 14-17: 2600, 2902, 2909, 2920 = NOT target
+    // Patterns at positions 15-18 (0-indexed): 2600, 2902, 2909, 2920 = NOT target
+    // SQL SUBSTRING is 1-indexed, so position 16 = JavaScript position 15
     const updateResult = await sql`
       UPDATE payments
       SET is_target = CASE
-        WHEN sender_account IS NULL OR LENGTH(sender_account) < 18 THEN false
-        WHEN SUBSTRING(sender_account FROM 15 FOR 4) IN ('2600', '2902', '2909', '2920') THEN false
+        WHEN sender_account IS NULL OR LENGTH(sender_account) < 19 THEN false
+        WHEN SUBSTRING(sender_account FROM 16 FOR 4) IN ('2600', '2902', '2909', '2920') THEN false
         ELSE true
       END
     `;

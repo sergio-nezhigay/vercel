@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getTargetLabel } from '@/lib/account-utils';
+import { getTargetLabel, getAccountPatternParts } from '@/lib/account-utils';
 
 interface Payment {
   id: number;
@@ -420,16 +420,33 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                     </td>
                     <td style={{ padding: '12px', fontSize: '14px' }}>
                       <div style={{ fontWeight: '500' }}>{payment.sender_name}</div>
-                      {payment.sender_account && (
-                        <div style={{ fontSize: '12px', color: '#666' }}>
-                          Рахунок: {payment.sender_account}
-                        </div>
-                      )}
-                      {payment.sender_tax_id && (
-                        <div style={{ fontSize: '12px', color: '#666' }}>
-                          ЄДРПОУ: {payment.sender_tax_id}
-                        </div>
-                      )}
+                      {payment.sender_account && (() => {
+                        const parts = getAccountPatternParts(payment.sender_account);
+                        if (!parts) {
+                          return (
+                            <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
+                              <span style={{ fontWeight: '500' }}>Рахунок:</span> {payment.sender_account}
+                            </div>
+                          );
+                        }
+                        return (
+                          <div style={{ fontSize: '14px', color: '#666', marginTop: '4px', fontFamily: 'monospace' }}>
+                            <span style={{ fontWeight: '500' }}>Рахунок:</span>{' '}
+                            <span>{parts.prefix}</span>
+                            <span style={{
+                              fontWeight: 'bold',
+                              fontSize: '16px',
+                              color: parts.isMatched ? '#22c55e' : '#ef4444',
+                              backgroundColor: parts.isMatched ? '#f0fdf4' : '#fef2f2',
+                              padding: '2px 4px',
+                              borderRadius: '3px'
+                            }}>
+                              {parts.pattern}
+                            </span>
+                            <span>{parts.suffix}</span>
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td style={{ padding: '12px', fontSize: '14px', maxWidth: '300px' }}>
                       <div style={{
@@ -439,11 +456,6 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                       }}>
                         {payment.description}
                       </div>
-                      {payment.document_number && (
-                        <div style={{ fontSize: '12px', color: '#666' }}>
-                          Док: {payment.document_number}
-                        </div>
-                      )}
                     </td>
                     <td style={{
                       padding: '12px',
