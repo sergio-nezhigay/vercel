@@ -36,11 +36,16 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setError(null);
       const token = localStorage.getItem('auth_token');
+      console.log('[CompanyContext] loadCompanies called');
+      console.log('[CompanyContext] Token found:', token ? 'YES' : 'NO');
 
       if (!token) {
-        console.log('No auth token found, skipping company load');
-        setError('Немає токена авторизації. Будь ласка, увійдіть знову.');
+      if (!token) {
+        console.log('[CompanyContext] No auth token found, skipping company load');
+        // Don't set error on initial load - just skip loading companies
+        setIsLoading(false);
         return;
+      }
       }
 
       const response = await fetch('/api/companies', {

@@ -34,12 +34,14 @@ export default function LoginPage() {
 
       // Store token in localStorage
       localStorage.setItem('auth_token', data.token);
+      console.log('[Login] Token stored:', data.token.substring(0, 20) + '...');
       localStorage.setItem('user', JSON.stringify(data.user));
 
       console.log('Login successful:', data.user.email);
 
       // Redirect to home page
-      router.push('/');
+      // Force full page reload to remount CompanyContext and load companies
+      window.location.href = '/';
     } catch (err) {
       console.error('Login error:', err);
       setError('Failed to connect to server');
