@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getTargetLabel, getAccountPatternParts } from '@/lib/account-utils';
+import { getAccountPatternParts } from '@/lib/account-utils';
 
 interface Payment {
   id: number;
@@ -40,7 +40,9 @@ export default function PaymentList({ companyId }: PaymentListProps) {
   // Filters
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'issued'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'pending' | 'issued'
+  >('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Pagination
@@ -89,7 +91,7 @@ export default function PaymentList({ companyId }: PaymentListProps) {
 
       const response = await fetch(`/api/payments?${params.toString()}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -151,7 +153,7 @@ export default function PaymentList({ companyId }: PaymentListProps) {
       const response = await fetch('/api/receipts/create', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ paymentId }),
@@ -164,13 +166,18 @@ export default function PaymentList({ companyId }: PaymentListProps) {
       }
 
       console.log('Receipt issued successfully:', data);
-      alert(`Чек успішно видано!\nФіскальний код: ${data.receipt.fiscal_code || 'N/A'}`);
+      alert(
+        `Чек успішно видано!\nФіскальний код: ${
+          data.receipt.fiscal_code || 'N/A'
+        }`
+      );
 
       // Refresh payments list
       await fetchPayments();
     } catch (err) {
       console.error('Error issuing receipt:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Не вдалося видати чек';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Не вдалося видати чек';
       setError(errorMessage);
       alert(`Помилка: ${errorMessage}`);
     } finally {
@@ -181,80 +188,123 @@ export default function PaymentList({ companyId }: PaymentListProps) {
   return (
     <div style={{ padding: '20px 0' }}>
       {/* Summary Stats */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '15px',
-        marginBottom: '20px',
-      }}>
-        <div style={{
-          background: 'white',
-          padding: '20px',
-          borderRadius: '10px',
-          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-        }}>
-          <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>Всього платежів</div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#667eea' }}>{stats.total_payments}</div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '15px',
+          marginBottom: '20px',
+        }}
+      >
+        <div
+          style={{
+            background: 'white',
+            padding: '20px',
+            borderRadius: '10px',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+          }}
+        >
+          <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
+            Всього платежів
+          </div>
+          <div
+            style={{ fontSize: '28px', fontWeight: 'bold', color: '#667eea' }}
+          >
+            {stats.total_payments}
+          </div>
         </div>
 
-        <div style={{
-          background: 'white',
-          padding: '20px',
-          borderRadius: '10px',
-          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-        }}>
-          <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>Очікують чек</div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#f59e0b' }}>{stats.pending_receipts}</div>
+        <div
+          style={{
+            background: 'white',
+            padding: '20px',
+            borderRadius: '10px',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+          }}
+        >
+          <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
+            Очікують чек
+          </div>
+          <div
+            style={{ fontSize: '28px', fontWeight: 'bold', color: '#f59e0b' }}
+          >
+            {stats.pending_receipts}
+          </div>
           <div style={{ fontSize: '12px', color: '#999', marginTop: '5px' }}>
             {formatAmount(stats.pending_amount.toString(), 'UAH')}
           </div>
         </div>
 
-        <div style={{
-          background: 'white',
-          padding: '20px',
-          borderRadius: '10px',
-          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-        }}>
-          <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>Чеки видано</div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#10b981' }}>{stats.issued_receipts}</div>
+        <div
+          style={{
+            background: 'white',
+            padding: '20px',
+            borderRadius: '10px',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+          }}
+        >
+          <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
+            Чеки видано
+          </div>
+          <div
+            style={{ fontSize: '28px', fontWeight: 'bold', color: '#10b981' }}
+          >
+            {stats.issued_receipts}
+          </div>
         </div>
 
-        <div style={{
-          background: 'white',
-          padding: '20px',
-          borderRadius: '10px',
-          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-        }}>
-          <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>Загальна сума</div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#667eea' }}>
+        <div
+          style={{
+            background: 'white',
+            padding: '20px',
+            borderRadius: '10px',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+          }}
+        >
+          <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
+            Загальна сума
+          </div>
+          <div
+            style={{ fontSize: '28px', fontWeight: 'bold', color: '#667eea' }}
+          >
             {formatAmount(stats.total_amount.toString(), 'UAH')}
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div style={{
-        background: 'white',
-        padding: '20px',
-        borderRadius: '10px',
-        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-        marginBottom: '20px',
-      }}>
+      <div
+        style={{
+          background: 'white',
+          padding: '20px',
+          borderRadius: '10px',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+          marginBottom: '20px',
+        }}
+      >
         <h3 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>Фільтри</h3>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '15px',
-          marginBottom: '15px',
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '15px',
+            marginBottom: '15px',
+          }}
+        >
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '5px',
+                fontSize: '14px',
+                fontWeight: '500',
+              }}
+            >
               Дата від:
             </label>
             <input
-              type="date"
+              type='date'
               value={startDate}
               onChange={(e) => {
                 setStartDate(e.target.value);
@@ -271,11 +321,18 @@ export default function PaymentList({ companyId }: PaymentListProps) {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '5px',
+                fontSize: '14px',
+                fontWeight: '500',
+              }}
+            >
               Дата до:
             </label>
             <input
-              type="date"
+              type='date'
               value={endDate}
               onChange={(e) => {
                 setEndDate(e.target.value);
@@ -292,7 +349,14 @@ export default function PaymentList({ companyId }: PaymentListProps) {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '5px',
+                fontSize: '14px',
+                fontWeight: '500',
+              }}
+            >
               Статус:
             </label>
             <select
@@ -309,19 +373,26 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                 fontSize: '14px',
               }}
             >
-              <option value="all">Всі</option>
-              <option value="pending">Очікують чек</option>
-              <option value="issued">Чек видано</option>
+              <option value='all'>Всі</option>
+              <option value='pending'>Очікують чек</option>
+              <option value='issued'>Чек видано</option>
             </select>
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '5px',
+                fontSize: '14px',
+                fontWeight: '500',
+              }}
+            >
               Пошук:
             </label>
             <input
-              type="text"
-              placeholder="Пошук по відправнику..."
+              type='text'
+              placeholder='Пошук по відправнику...'
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -356,13 +427,15 @@ export default function PaymentList({ companyId }: PaymentListProps) {
 
       {/* Payments List */}
       {error && (
-        <div style={{
-          padding: '15px',
-          background: '#fee',
-          color: '#c33',
-          borderRadius: '5px',
-          marginBottom: '20px',
-        }}>
+        <div
+          style={{
+            padding: '15px',
+            background: '#fee',
+            color: '#c33',
+            borderRadius: '5px',
+            marginBottom: '20px',
+          }}
+        >
           <strong>Помилка:</strong> {error}
         </div>
       )}
@@ -372,13 +445,15 @@ export default function PaymentList({ companyId }: PaymentListProps) {
           Завантаження платежів...
         </div>
       ) : payments.length === 0 ? (
-        <div style={{
-          background: 'white',
-          padding: '40px',
-          borderRadius: '10px',
-          textAlign: 'center',
-          color: '#666',
-        }}>
+        <div
+          style={{
+            background: 'white',
+            padding: '40px',
+            borderRadius: '10px',
+            textAlign: 'center',
+            color: '#666',
+          }}
+        >
           <p>Платежів не знайдено</p>
           {(startDate || endDate || searchQuery || statusFilter !== 'all') && (
             <p style={{ fontSize: '14px', marginTop: '10px' }}>
@@ -388,21 +463,82 @@ export default function PaymentList({ companyId }: PaymentListProps) {
         </div>
       ) : (
         <>
-          <div style={{
-            background: 'white',
-            borderRadius: '10px',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-            overflow: 'hidden',
-          }}>
+          <div
+            style={{
+              background: 'white',
+              borderRadius: '10px',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+              overflow: 'hidden',
+            }}
+          >
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Дата</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Відправник</th>
-                  <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px', fontWeight: '600' }}>Опис</th>
-                  <th style={{ padding: '12px', textAlign: 'right', fontSize: '14px', fontWeight: '600' }}>Сума</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontSize: '14px', fontWeight: '600' }}>Статус</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontSize: '14px', fontWeight: '600' }}>Дія</th>
+                <tr
+                  style={{
+                    background: '#f9fafb',
+                    borderBottom: '2px solid #e5e7eb',
+                  }}
+                >
+                  <th
+                    style={{
+                      padding: '12px',
+                      textAlign: 'left',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Дата
+                  </th>
+                  <th
+                    style={{
+                      padding: '12px',
+                      textAlign: 'left',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Відправник
+                  </th>
+                  <th
+                    style={{
+                      padding: '12px',
+                      textAlign: 'left',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Опис
+                  </th>
+                  <th
+                    style={{
+                      padding: '12px',
+                      textAlign: 'right',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Сума
+                  </th>
+                  <th
+                    style={{
+                      padding: '12px',
+                      textAlign: 'center',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Статус
+                  </th>
+                  <th
+                    style={{
+                      padding: '12px',
+                      textAlign: 'center',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Дія
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -411,7 +547,11 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                     key={payment.id}
                     style={{
                       borderBottom: '1px solid #e5e7eb',
-                      background: payment.receipt_issued ? '#f0fdf4' : (payment.is_target ? 'white' : '#f5f5f5'),
+                      background: payment.receipt_issued
+                        ? '#f0fdf4'
+                        : payment.is_target
+                        ? 'white'
+                        : '#f5f5f5',
                       opacity: payment.is_target ? 1 : 0.6,
                     }}
                   >
@@ -419,90 +559,146 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                       {formatDate(payment.payment_date)}
                     </td>
                     <td style={{ padding: '12px', fontSize: '14px' }}>
-                      <div style={{ fontWeight: '500' }}>{payment.sender_name}</div>
-                      {payment.sender_account && (() => {
-                        const parts = getAccountPatternParts(payment.sender_account);
-                        if (!parts) {
+                      <div style={{ fontWeight: '500' }}>
+                        {payment.sender_name}
+                      </div>
+                      {payment.sender_account &&
+                        (() => {
+                          const parts = getAccountPatternParts(
+                            payment.sender_account
+                          );
+                          if (!parts) {
+                            return (
+                              <div
+                                style={{
+                                  fontSize: '14px',
+                                  color: '#666',
+                                  marginTop: '4px',
+                                }}
+                              >
+                                <span style={{ fontWeight: '500' }}>
+                                  Рахунок:
+                                </span>{' '}
+                                {payment.sender_account}
+                              </div>
+                            );
+                          }
                           return (
-                            <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
-                              <span style={{ fontWeight: '500' }}>Рахунок:</span> {payment.sender_account}
+                            <div
+                              style={{
+                                fontSize: '14px',
+                                color: '#666',
+                                marginTop: '4px',
+                                fontFamily: 'monospace',
+                              }}
+                            >
+                              <span style={{ fontWeight: '500' }}>
+                                Рахунок:
+                              </span>{' '}
+                              <span>{parts.prefix}</span>
+                              <span
+                                style={{
+                                  fontWeight: 'bold',
+                                  fontSize: '16px',
+                                  color: parts.isMatched
+                                    ? '#22c55e'
+                                    : '#ef4444',
+                                  backgroundColor: parts.isMatched
+                                    ? '#f0fdf4'
+                                    : '#fef2f2',
+                                  padding: '2px 4px',
+                                  borderRadius: '3px',
+                                }}
+                              >
+                                {parts.pattern}
+                              </span>
+                              <span>{parts.suffix}</span>
                             </div>
                           );
-                        }
-                        return (
-                          <div style={{ fontSize: '14px', color: '#666', marginTop: '4px', fontFamily: 'monospace' }}>
-                            <span style={{ fontWeight: '500' }}>Рахунок:</span>{' '}
-                            <span>{parts.prefix}</span>
-                            <span style={{
-                              fontWeight: 'bold',
-                              fontSize: '16px',
-                              color: parts.isMatched ? '#22c55e' : '#ef4444',
-                              backgroundColor: parts.isMatched ? '#f0fdf4' : '#fef2f2',
-                              padding: '2px 4px',
-                              borderRadius: '3px'
-                            }}>
-                              {parts.pattern}
-                            </span>
-                            <span>{parts.suffix}</span>
-                          </div>
-                        );
-                      })()}
+                        })()}
                     </td>
-                    <td style={{ padding: '12px', fontSize: '14px', maxWidth: '300px' }}>
-                      <div style={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}>
+                    <td
+                      style={{
+                        padding: '12px',
+                        fontSize: '14px',
+                        maxWidth: '300px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
                         {payment.description}
                       </div>
                     </td>
-                    <td style={{
-                      padding: '12px',
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      textAlign: 'right',
-                      color: '#10b981',
-                    }}>
+                    <td
+                      style={{
+                        padding: '12px',
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        textAlign: 'right',
+                        color: '#10b981',
+                      }}
+                    >
                       {formatAmount(payment.amount, payment.currency)}
                     </td>
                     <td style={{ padding: '12px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '4px',
+                          alignItems: 'center',
+                        }}
+                      >
                         {/* Target indicator */}
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '4px 12px',
-                          background: payment.is_target ? '#dbeafe' : '#f3f4f6',
-                          color: payment.is_target ? '#1e40af' : '#6b7280',
-                          borderRadius: '12px',
-                          fontSize: '11px',
-                          fontWeight: '500',
-                        }}>
-                          {payment.is_target ? '🎯 Потребує чек' : 'ℹ️ Не потребує чека'}
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '4px 12px',
+                            background: payment.is_target
+                              ? '#dbeafe'
+                              : '#f3f4f6',
+                            color: payment.is_target ? '#1e40af' : '#6b7280',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: '500',
+                          }}
+                        >
+                          {payment.is_target
+                            ? '🎯 Потребує чек111'
+                            : 'ℹ️ Не потребує чека'}
                         </span>
                         {/* Receipt status */}
                         {payment.receipt_issued ? (
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '4px 12px',
-                            background: '#d1fae5',
-                            color: '#065f46',
-                            borderRadius: '12px',
-                            fontSize: '12px',
-                            fontWeight: '500',
-                          }}>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              padding: '4px 12px',
+                              background: '#d1fae5',
+                              color: '#065f46',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                            }}
+                          >
                             ✓ Чек видано
                           </span>
                         ) : (
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '4px 12px',
-                            background: '#fef3c7',
-                            color: '#92400e',
-                            borderRadius: '12px',
-                            fontSize: '12px',
-                            fontWeight: '500',
-                          }}>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              padding: '4px 12px',
+                              background: '#fef3c7',
+                              color: '#92400e',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                            }}
+                          >
                             ⏳ Очікує
                           </span>
                         )}
@@ -514,8 +710,8 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                           {payment.pdf_url ? (
                             <a
                               href={payment.pdf_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                              target='_blank'
+                              rel='noopener noreferrer'
                               style={{
                                 color: '#667eea',
                                 textDecoration: 'none',
@@ -531,20 +727,33 @@ export default function PaymentList({ companyId }: PaymentListProps) {
                       ) : (
                         <button
                           onClick={() => handleIssueReceipt(payment.id)}
-                          disabled={issuingReceipt === payment.id || !payment.is_target}
+                          disabled={
+                            issuingReceipt === payment.id || !payment.is_target
+                          }
                           style={{
                             padding: '6px 12px',
-                            background: issuingReceipt === payment.id ? '#9ca3af' : (payment.is_target ? '#10b981' : '#d1d5db'),
+                            background:
+                              issuingReceipt === payment.id
+                                ? '#9ca3af'
+                                : payment.is_target
+                                ? '#10b981'
+                                : '#d1d5db',
                             color: 'white',
                             border: 'none',
                             borderRadius: '5px',
-                            cursor: (issuingReceipt === payment.id || !payment.is_target) ? 'not-allowed' : 'pointer',
+                            cursor:
+                              issuingReceipt === payment.id ||
+                              !payment.is_target
+                                ? 'not-allowed'
+                                : 'pointer',
                             fontSize: '12px',
                             fontWeight: '500',
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          {issuingReceipt === payment.id ? '⏳ Створення...' : '✓ Видати чек'}
+                          {issuingReceipt === payment.id
+                            ? '⏳ Створення...'
+                            : '✓ Видати чек'}
                         </button>
                       )}
                     </td>
@@ -556,17 +765,20 @@ export default function PaymentList({ companyId }: PaymentListProps) {
 
           {/* Pagination */}
           {(offset > 0 || hasMore) && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: '20px',
-              padding: '15px',
-              background: 'white',
-              borderRadius: '10px',
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: '20px',
+                padding: '15px',
+                background: 'white',
+                borderRadius: '10px',
+              }}
+            >
               <div style={{ fontSize: '14px', color: '#666' }}>
-                Показано {offset + 1}-{Math.min(offset + limit, totalCount)} з {totalCount}
+                Показано {offset + 1}-{Math.min(offset + limit, totalCount)} з{' '}
+                {totalCount}
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button

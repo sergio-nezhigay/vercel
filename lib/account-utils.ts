@@ -39,34 +39,6 @@ export function isTargetAccount(
 }
 
 /**
- * Get a human-readable label for payment target status
- *
- * @param senderAccount - The sender's account number
- * @returns Label describing whether payment needs receipt
- */
-export function getTargetLabel(senderAccount: string | null | undefined): {
-  text: string;
-  emoji: string;
-  needsReceipt: boolean;
-} {
-  const isTarget = isTargetAccount(senderAccount);
-
-  if (isTarget) {
-    return {
-      text: 'Потребує чек',
-      emoji: '🎯',
-      needsReceipt: true,
-    };
-  } else {
-    return {
-      text: 'Не потребує чека',
-      emoji: 'ℹ️',
-      needsReceipt: false,
-    };
-  }
-}
-
-/**
  * Extract pattern information from account number for visual display
  *
  * @param senderAccount - The sender's account number
