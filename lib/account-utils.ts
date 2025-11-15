@@ -7,7 +7,7 @@
  * Patterns that indicate non-target payments (receipts not needed)
  * These patterns appear at positions 15-18 in Ukrainian IBAN format
  */
-const NON_TARGET_PATTERNS = ['2600', '2902', '2909', '2920', '2620', '2654'];
+const NON_TARGET_PATTERNS = ['2600', '2902', '2909', '2920'];
 const NOVA_POSHTA_ACCOUNT = 'UA813005280000026548000000014';
 
 /**

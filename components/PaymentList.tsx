@@ -160,6 +160,7 @@ export default function PaymentList({ companyId }: PaymentListProps) {
       });
 
       const data = await response.json();
+      console.log('data', JSON.stringify(data, null, 2));
 
       if (!response.ok) {
         throw new Error(data.message || 'Failed to issue receipt');
@@ -168,7 +169,7 @@ export default function PaymentList({ companyId }: PaymentListProps) {
       console.log('Receipt issued successfully:', data);
       alert(
         `Чек успішно видано!\nФіскальний код: ${
-          data.receipt.fiscal_code || 'N/A'
+          data.receipt.checkboxReceiptId || 'N/A'
         }`
       );
 

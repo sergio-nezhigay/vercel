@@ -41,25 +41,18 @@ export function getProductTitle(
   payment: PaymentInfo,
   supplier?: SupplierInfo
 ): string {
+  console.log('company', JSON.stringify(company, null, 2));
   // TODO: Future enhancement - customize titles per company
   // Example structure for future implementation:
   //
-  // switch (company.id) {
-  //   case 1:
-  //     return 'Перехідник HDMI-VGA (Компанія А)';
-  //   case 2:
-  //     return 'Адаптер HDMI-VGA (Компанія Б)';
-  //   default:
-  //     return getUniversalProductTitle(payment);
-  // }
-
-  // TODO: Future enhancement - customize titles per supplier
-  // if (supplier?.name) {
-  //   return `${getUniversalProductTitle(payment)} від ${supplier.name}`;
-  // }
-
-  // For now, return universal title for all companies
-  return getUniversalProductTitle(payment);
+  switch (company.tax_id) {
+    case '2593712430':
+      return 'Перехідник HDMI-VGA';
+    case '123456789':
+      return 'Косметичні товари';
+    default:
+      return getUniversalProductTitle(payment);
+  }
 }
 
 /**
@@ -70,12 +63,12 @@ export function getProductTitle(
  */
 function getUniversalProductTitle(payment: PaymentInfo): string {
   // Use payment description if available, otherwise use default title
-  if (payment.description && payment.description.trim()) {
-    return payment.description.trim();
-  }
+  //  if (payment.description && payment.description.trim()) {
+  //    return payment.description.trim();
+  //  }
 
   // Default universal title
-  return 'Перехідник HDMI-VGA';
+  return 'Перехідник HDMI-RCA';
 }
 
 /**
